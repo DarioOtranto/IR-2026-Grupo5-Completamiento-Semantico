@@ -29,7 +29,7 @@ El diseño es accesible para personas con **hemiparesia** (uso de una sola mano,
 
 ## ♿ Accesibilidad y adaptación para pacientes con ACV
 
-El software ha sido diseñado siguiendo las **pautas de accesibilidad de Material Design** y recomendaciones para pacientes neurológicos:
+El software ha sido diseñado siguiendo las **pautas de accesibilidad de Material Design** (ver referencias) y recomendaciones para pacientes neurológicos:
 
 | Característica | Implementación |
 |----------------|----------------|
@@ -44,7 +44,7 @@ El software ha sido diseñado siguiendo las **pautas de accesibilidad de Materia
 
 ### Adaptación cultural rioplatense
 
-Los 20 ítems fueron modificados para reflejar el vocabulario y las costumbres de Argentina y Uruguay:
+Los 20 ítems fueron modificados para reflejar el vocabulario y las costumbres de Argentina y Uruguay, basados en el trabajo de adaptación de **Martínez‑Cuitiño & Barreyro (2015)**:
 
 - Se reemplazaron términos como *"palm tree"* por *"palmera"* y *"pharaoh"* por *"faraón"*, pero contextualizados en oraciones familiares.
 - Ejemplos de oraciones adaptadas:  
