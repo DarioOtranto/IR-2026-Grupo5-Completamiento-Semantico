@@ -119,7 +119,7 @@ class SemanticTest:
 
         self.root.title(f"Test de Asociación Semántica - {patient_id}")
 
-        # --- INICIO DE LA MODIFICACIÓN: maximizar o ajustar a pantalla ---
+        # Maximizar o ajustar a pantalla
         try:
             self.root.state('zoomed')
         except:
@@ -129,10 +129,9 @@ class SemanticTest:
                 screen_width = self.root.winfo_screenwidth()
                 screen_height = self.root.winfo_screenheight()
                 self.root.geometry(f"{screen_width}x{screen_height}")
-        # -----------------------------------------------------------------
 
         self.root.configure(bg="#F5F5F5")
-        self.root.minsize(800, 600)  # tamaño mínimo para evitar que se haga muy pequeña
+        self.root.minsize(800, 600)
 
         self.answering = False
         self.current_idx = 0
@@ -298,13 +297,22 @@ class SemanticTest:
         self.current_idx += 1
         self.show_item()
 
+    # ========== VENTANA DE RESULTADOS CORREGIDA (centrada, tamaño fijo) ==========
     def show_results_window(self, tiempos, aciertos, total, precision, z_aciertos, por_debajo):
         results_win = tk.Toplevel(self.root)
         results_win.title("Resultados del Test")
-        results_win.geometry("1000x800")
+        # Tamaño fijo y centrado
+        ancho = 1000
+        alto = 800
+        screen_width = results_win.winfo_screenwidth()
+        screen_height = results_win.winfo_screenheight()
+        x = (screen_width - ancho) // 2
+        y = (screen_height - alto) // 2
+        results_win.geometry(f"{ancho}x{alto}+{x}+{y}")
         results_win.configure(bg="#F5F5F5")
         results_win.transient(self.root)
         results_win.grab_set()
+        results_win.minsize(800, 600)
 
         notebook = ttk.Notebook(results_win)
         notebook.pack(fill='both', expand=True, padx=10, pady=10)
@@ -317,31 +325,33 @@ class SemanticTest:
         notebook.add(tab_roc, text='Curva ROC')
         self._create_roc_tab(tab_roc)
 
+        btn_frame = tk.Frame(results_win, bg="#F5F5F5")
+        btn_frame.pack(pady=15)
+
         def on_close():
             results_win.destroy()
             self.root.quit()
             self.root.destroy()
             sys.exit(0)
 
-        results_win.protocol("WM_DELETE_WINDOW", on_close)
-        btn_ok = tk.Button(results_win, text="Cerrar y salir", command=on_close,
-                           font=("Roboto", 16), bg="#6200EE", fg="white",
+        btn_ok = tk.Button(btn_frame, text="Cerrar y salir", command=on_close,
+                           font=("Roboto", 14), bg="#6200EE", fg="white",
                            relief=tk.RAISED, bd=2, padx=30, pady=10)
-        btn_ok.pack(pady=20)
+        btn_ok.pack()
 
     def _create_histogram_tab(self, parent, tiempos, aciertos, total, precision, z_aciertos, por_debajo):
-        fig, ax = plt.subplots(figsize=(8, 5), dpi=100)
+        fig, ax = plt.subplots(figsize=(7, 4), dpi=100)
         ax.hist(tiempos, bins=10, color='#6200EE', edgecolor='black', alpha=0.7)
-        ax.set_xlabel('Tiempo de reacción (ms)', fontsize=14)
-        ax.set_ylabel('Frecuencia', fontsize=14)
-        ax.set_title('Distribución de tiempos de reacción', fontsize=16)
+        ax.set_xlabel('Tiempo de reacción (ms)', fontsize=11)
+        ax.set_ylabel('Frecuencia', fontsize=11)
+        ax.set_title('Distribución de tiempos de reacción', fontsize=13)
         ax.grid(True, linestyle='--', alpha=0.5)
 
         media = sum(tiempos)/len(tiempos) if tiempos else 0
         mediana = sorted(tiempos)[len(tiempos)//2] if tiempos else 0
         ax.axvline(media, color='red', linestyle='dashed', linewidth=2, label=f'Media: {media:.0f} ms')
         ax.axvline(mediana, color='green', linestyle='dashed', linewidth=2, label=f'Mediana: {mediana:.0f} ms')
-        ax.legend(fontsize=12)
+        ax.legend(fontsize=9)
 
         canvas = FigureCanvasTkAgg(fig, master=parent)
         canvas.draw()
@@ -365,7 +375,7 @@ class SemanticTest:
         else:
             stats_text += "✅ Rendimiento dentro de lo normal."
 
-        lbl_stats = tk.Label(frame_stats, text=stats_text, font=("Roboto", 14),
+        lbl_stats = tk.Label(frame_stats, text=stats_text, font=("Roboto", 11),
                              bg="#F5F5F5", fg="#212121", justify=tk.LEFT)
         lbl_stats.pack(pady=10, padx=20)
 
@@ -373,17 +383,17 @@ class SemanticTest:
         fpr, tpr = generate_roc_points()
         roc_auc = auc_manual(fpr, tpr)
 
-        fig = Figure(figsize=(7, 6), dpi=100)
+        fig = Figure(figsize=(6, 4), dpi=100)
         ax = fig.add_subplot(111)
         ax.plot(fpr, tpr, color='darkorange', lw=2, label=f'Curva ROC (AUC = {roc_auc:.2f})')
         ax.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Clasificador Aleatorio')
         ax.plot(1-0.988, 0.85, 'ro', markersize=10, label='Punto de Corte (17/20)')
         ax.set_xlim([0.0, 1.0])
         ax.set_ylim([0.0, 1.05])
-        ax.set_xlabel('Tasa de Falsos Positivos (1 - Especificidad)', fontsize=12)
-        ax.set_ylabel('Tasa de Verdaderos Positivos (Sensibilidad)', fontsize=12)
-        ax.set_title('Curva ROC del Test de Asociación Semántica', fontsize=14)
-        ax.legend(loc="lower right", fontsize=10)
+        ax.set_xlabel('Tasa de Falsos Positivos (1 - Especificidad)', fontsize=11)
+        ax.set_ylabel('Tasa de Verdaderos Positivos (Sensibilidad)', fontsize=11)
+        ax.set_title('Curva ROC del Test de Asociación Semántica', fontsize=13)
+        ax.legend(loc="lower right", fontsize=9)
         ax.grid(True, linestyle='--', alpha=0.5)
 
         canvas = FigureCanvasTkAgg(fig, master=parent)
@@ -396,9 +406,9 @@ class SemanticTest:
                      "El punto de corte de 17/20 aciertos logra una sensibilidad del 85%\n"
                      "(capacidad de detectar verdaderos pacientes) y una especificidad del 98.8%\n"
                      "(capacidad de identificar correctamente a los sanos).")
-        lbl_info = tk.Label(parent, text=info_text, font=("Roboto", 12), justify=tk.LEFT,
+        lbl_info = tk.Label(parent, text=info_text, font=("Roboto", 10), justify=tk.LEFT,
                             bg="#F5F5F5", fg="#212121")
-        lbl_info.pack(pady=20, padx=20)
+        lbl_info.pack(pady=15, padx=20)
 
     def finish_test(self):
         total = len(self.results)
@@ -465,11 +475,12 @@ class SemanticTest:
         self.root.destroy()
         sys.exit(0)
 
-# ========== VENTANA DE INICIO ==========
+
+# ========== VENTANA DE INICIO (con validación de edad y leyenda) ==========
 def main():
     root = tk.Tk()
     root.title("Evaluación Semántica - Configuración")
-    root.geometry("850x900")
+    root.geometry("850x950")
     root.configure(bg="#F5F5F5")
 
     tk.Label(root, text="Test de Asociación Semántica", font=("Roboto", 32, "bold"),
@@ -478,7 +489,7 @@ def main():
              bg="#F5F5F5", fg="#757575").pack()
 
     frame_datos = tk.Frame(root, bg="#F5F5F5")
-    frame_datos.pack(pady=20)
+    frame_datos.pack(pady=30)
 
     tk.Label(frame_datos, text="ID del paciente:", font=("Roboto", 16),
              bg="#F5F5F5", fg="#212121").grid(row=0, column=0, padx=10, pady=10, sticky="e")
@@ -491,6 +502,15 @@ def main():
     entry_age = tk.Entry(frame_datos, font=("Roboto", 16), width=10,
                          bg="#FFFFFF", fg="#212121", relief=tk.FLAT, bd=1)
     entry_age.grid(row=1, column=1, padx=10, pady=10, sticky="w")
+
+    # Validación de edad: solo dígitos
+    def validate_age(char):
+        return char.isdigit() or char == ""
+    vcmd = (root.register(validate_age), '%S')
+    entry_age.config(validate="key", validatecommand=vcmd)
+
+    tk.Label(frame_datos, text="(solo números)", font=("Roboto", 12),
+             bg="#F5F5F5", fg="#757575").grid(row=1, column=2, padx=5, pady=10, sticky="w")
 
     tk.Label(frame_datos, text="Género:", font=("Roboto", 16),
              bg="#F5F5F5", fg="#212121").grid(row=2, column=0, padx=10, pady=10, sticky="e")
@@ -537,7 +557,7 @@ def main():
             return
         age_str = entry_age.get().strip()
         if not age_str.isdigit():
-            messagebox.showwarning("Error", "Ingrese una edad válida (número)")
+            messagebox.showwarning("Error", "Ingrese una edad válida (solo números)")
             return
         age = int(age_str)
         gender = gender_var.get()
