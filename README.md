@@ -21,7 +21,7 @@ Nuestra versión adapta los ítems al **español rioplatense** (Argentina/Urugua
 - Pacientes con **ACV en hemisferio izquierdo** (afasia, déficit semántico).
 - Pacientes con **ACV en hemisferio derecho** (neglect semántico – aunque el test es principalmente verbal).
 - Personas con **demencia semántica**, **afasia progresiva primaria** variante semántica.
-- **Sujetos controles** (para obtener datos normativos).
+- **Sujetos control** (para obtener datos normativos).
 
 El diseño es accesible para personas con **hemiparesia** (uso de una sola mano, botones grandes, sin doble clic) y **trastornos visuales** (alto contraste, imágenes grandes, fuente grande).
 
