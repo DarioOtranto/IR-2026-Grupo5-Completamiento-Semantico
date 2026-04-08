@@ -19,10 +19,8 @@ RESULTS_PATH = os.path.join(os.path.dirname(__file__), "results")
 os.makedirs(ASSETS_PATH, exist_ok=True)
 os.makedirs(RESULTS_PATH, exist_ok=True)
 
-# Tamaño de imágenes más grande (accesibilidad)
 IMAGE_SIZE = (300, 300)
 
-# ========== 20 ÍTEMS ==========
 ITEMS = [
     {"estimulo": "pila", "correcta": "linterna", "distractor": "lampara",
      "oracion": "Necesito una pila porque mi ______ no enciende."},
@@ -47,7 +45,7 @@ ITEMS = [
     {"estimulo": "medalla", "correcta": "soldado", "distractor": "escudo",
      "oracion": "La medalla fue entregada al valiente ______."},
     {"estimulo": "chupete", "correcta": "bebe", "distractor": "mamadera",
-     "oracion": "El bebé se llevó el ______ a la boca."},
+     "oracion": "El chupete fue abandonado por el ______."},
     {"estimulo": "cortina", "correcta": "ventana", "distractor": "persiana",
      "oracion": "Corrió la cortina para abrir la ______."},
     {"estimulo": "fuelle", "correcta": "fogata", "distractor": "carbon",
@@ -69,7 +67,6 @@ ITEMS = [
 CONTROL_MEAN = 19.95
 CONTROL_SD = 0.22
 
-# ========== CURVA ROC ==========
 def generate_roc_points(sensitivity=0.85, specificity=0.988):
     fpr_points = [0.0, 1.0 - specificity, 1.0]
     tpr_points = [0.0, sensitivity, 1.0]
@@ -83,7 +80,6 @@ def generate_roc_points(sensitivity=0.85, specificity=0.988):
 def auc_manual(fpr, tpr):
     return np.trapezoid(tpr, fpr)
 
-# ========== CARGA DE IMÁGENES ==========
 def generate_placeholder_image(word, size=IMAGE_SIZE):
     img = Image.new('RGB', size, color='lightgray')
     draw = ImageDraw.Draw(img)
@@ -107,7 +103,6 @@ def load_or_generate_image(word, size=IMAGE_SIZE):
         img = generate_placeholder_image(word, size)
         return ImageTk.PhotoImage(img)
 
-# ========== CLASE PRINCIPAL ==========
 class SemanticTest:
     def __init__(self, root, patient_id, age, gender, mode_oracion, modo_visual):
         self.root = root
@@ -118,8 +113,6 @@ class SemanticTest:
         self.modo_visual = modo_visual
 
         self.root.title(f"Test de Asociación Semántica - {patient_id}")
-
-        # Maximizar o ajustar a pantalla
         try:
             self.root.state('zoomed')
         except:
@@ -129,7 +122,6 @@ class SemanticTest:
                 screen_width = self.root.winfo_screenwidth()
                 screen_height = self.root.winfo_screenheight()
                 self.root.geometry(f"{screen_width}x{screen_height}")
-
         self.root.configure(bg="#F5F5F5")
         self.root.minsize(800, 600)
 
@@ -185,10 +177,10 @@ class SemanticTest:
                 btn = tk.Button(parent, text="?", command=lambda: self.answer(is_correct),
                                 font=("Roboto", 28), bg="white", fg="black",
                                 width=15, height=8, relief=tk.RAISED, bd=3, cursor="hand2")
-        else:  # solo_texto
+        else:  # solo_texto - TAMAÑO 50, BOTONES GRANDES
             btn = tk.Button(parent, text=word.upper(), command=lambda: self.answer(is_correct),
-                            font=("Roboto", 24, "bold"), bg="white", fg="black",
-                            width=20, height=10, relief=tk.RAISED, bd=3, cursor="hand2")
+                            font=("Roboto", 50, "bold"), bg="white", fg="black",
+                            width=30, height=12, relief=tk.RAISED, bd=8, cursor="hand2")
         return btn
 
     def create_stimulus_label(self, parent, word):
@@ -205,8 +197,8 @@ class SemanticTest:
                 lbl = tk.Label(parent, image=img, bg="#F5F5F5", relief=tk.RAISED, bd=2)
             else:
                 lbl = tk.Label(parent, text="?", font=("Roboto", 28), bg="#F5F5F5", fg="#212121")
-        else:
-            lbl = tk.Label(parent, text=word.upper(), font=("Roboto", 28, "bold"),
+        else:  # solo_texto - ESTÍMULO TEXTO GRANDE TAMAÑO 50
+            lbl = tk.Label(parent, text=word.upper(), font=("Roboto", 50, "bold"),
                            bg="#F5F5F5", fg="#212121")
         return lbl
 
@@ -224,30 +216,34 @@ class SemanticTest:
         header = tk.Frame(self.root, bg="#F5F5F5", height=80)
         header.pack(fill=tk.X, pady=(10,0))
         tk.Label(header, text=f"Ítem {self.current_idx+1} de {len(ITEMS)}",
-                 font=("Roboto", 16), bg="#F5F5F5", fg="#757575").pack(side=tk.RIGHT, padx=20)
+                 font=("Roboto", 20), bg="#F5F5F5", fg="#757575").pack(side=tk.RIGHT, padx=20)
         modo_o = "Con oración" if self.mode_oracion == "con_oracion" else "Sin oración"
         visual_map = {"imagen_texto": "Imagen+Texto", "solo_imagen": "Solo imagen", "solo_texto": "Solo texto"}
         modo_v = visual_map[self.modo_visual]
         tk.Label(header, text=f"{modo_o} | {modo_v} | Paciente: {self.patient_id}",
                  font=("Roboto", 14), bg="#F5F5F5", fg="#757575").pack(side=tk.LEFT, padx=20)
 
+        # Estímulo
         frame_img = tk.Frame(self.root, bg="#F5F5F5")
-        frame_img.pack(pady=20)
+        frame_img.pack(pady=20, expand=True, fill=tk.BOTH)
         lbl_est = self.create_stimulus_label(frame_img, item["estimulo"])
-        lbl_est.pack()
+        lbl_est.pack(expand=True)
 
+        # Oración o instrucción
         if self.mode_oracion == "con_oracion":
             card = tk.Frame(self.root, bg="#FFFFFF", relief=tk.RAISED, bd=2)
-            card.pack(pady=30, padx=40, fill=tk.X)
+            card.pack(pady=20, padx=40, fill=tk.X)
             oracion_text = item["oracion"].replace("______", "___________")
             lbl_oracion = tk.Label(card, text=oracion_text, font=("Roboto", 22),
                                    bg="#FFFFFF", fg="#212121", wraplength=900, justify="center")
-            lbl_oracion.pack(pady=30, padx=20)
+            lbl_oracion.pack(pady=20, padx=20)
         else:
+            # Sin oración: instrucción más pequeña, pero sigue presente
             lbl_inst = tk.Label(self.root, text="Elegí la imagen que se relaciona con la de arriba",
-                                font=("Roboto", 20), bg="#F5F5F5", fg="#212121")
-            lbl_inst.pack(pady=20)
+                                font=("Roboto", 24), bg="#F5F5F5", fg="#212121")
+            lbl_inst.pack(pady=15)
 
+        # Opciones
         frame_opts = tk.Frame(self.root, bg="#F5F5F5")
         frame_opts.pack(pady=30, expand=True, fill=tk.BOTH)
 
@@ -259,10 +255,10 @@ class SemanticTest:
         self.right_button_correct = (right_word == item["correcta"])
 
         btn_left = self.create_response_button(frame_opts, left_word, self.left_button_correct)
-        btn_left.grid(row=0, column=0, padx=40, pady=10, sticky="nsew")
+        btn_left.grid(row=0, column=0, padx=40, pady=20, sticky="nsew")
 
         btn_right = self.create_response_button(frame_opts, right_word, self.right_button_correct)
-        btn_right.grid(row=0, column=1, padx=40, pady=10, sticky="nsew")
+        btn_right.grid(row=0, column=1, padx=40, pady=20, sticky="nsew")
 
         frame_opts.grid_columnconfigure(0, weight=1)
         frame_opts.grid_columnconfigure(1, weight=1)
@@ -297,11 +293,9 @@ class SemanticTest:
         self.current_idx += 1
         self.show_item()
 
-    # ========== VENTANA DE RESULTADOS CORREGIDA (centrada, tamaño fijo) ==========
     def show_results_window(self, tiempos, aciertos, total, precision, z_aciertos, por_debajo):
         results_win = tk.Toplevel(self.root)
         results_win.title("Resultados del Test")
-        # Tamaño fijo y centrado
         ancho = 1000
         alto = 800
         screen_width = results_win.winfo_screenwidth()
@@ -327,7 +321,6 @@ class SemanticTest:
 
         btn_frame = tk.Frame(results_win, bg="#F5F5F5")
         btn_frame.pack(pady=15)
-
         def on_close():
             results_win.destroy()
             self.root.quit()
@@ -476,7 +469,6 @@ class SemanticTest:
         sys.exit(0)
 
 
-# ========== VENTANA DE INICIO (con validación de edad y leyenda) ==========
 def main():
     root = tk.Tk()
     root.title("Evaluación Semántica - Configuración")
@@ -503,7 +495,6 @@ def main():
                          bg="#FFFFFF", fg="#212121", relief=tk.FLAT, bd=1)
     entry_age.grid(row=1, column=1, padx=10, pady=10, sticky="w")
 
-    # Validación de edad: solo dígitos
     def validate_age(char):
         return char.isdigit() or char == ""
     vcmd = (root.register(validate_age), '%S')
